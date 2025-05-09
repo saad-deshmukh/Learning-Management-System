@@ -15,7 +15,7 @@ dotenv.config({});
 connectDB();
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ;
 
 // default middleware
 app.use(express.json());
@@ -35,7 +35,7 @@ app.use("/api/v1/progress", courseProgressRoute);
  
  
 app.listen(PORT, () => {
-    console.log(`Server listen at port ${PORT}`);
+    console.log(`Server listening at port ${PORT}`);
 })
 
 
