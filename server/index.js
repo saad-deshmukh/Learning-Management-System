@@ -1,4 +1,7 @@
 import express from "express";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -16,6 +19,9 @@ connectDB();
 const app = express();
 
 const PORT = process.env.PORT ;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // default middleware
 app.use(express.json());
@@ -45,7 +51,7 @@ app.use("/api/v1/purchase", purchaseRoute);
 app.use("/api/v1/progress", courseProgressRoute);
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
 });
 
  
