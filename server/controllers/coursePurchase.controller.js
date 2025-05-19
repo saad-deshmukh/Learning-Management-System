@@ -23,32 +23,32 @@ export const createCheckoutSession = async (req, res) => {
     });
 
     // Create a Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "inr",
-            product_data: {
-              name: course.courseTitle,
-              images: [course.courseThumbnail],
-            },
-            unit_amount: course.coursePrice * 100, // Amount in paise (lowest denomination)
-          },
-          quantity: 1,
+   const session = await stripe.checkout.sessions.create({
+  payment_method_types: ["card"],
+  line_items: [
+    {
+      price_data: {
+        currency: "inr",
+        product_data: {
+          name: course.courseTitle,
+          images: [course.courseThumbnail],
         },
-      ],
-      mode: "payment",
-      success_url: `http://localhost:5173/course-progress/${courseId}`, // once payment successful redirect to course progress page
-      cancel_url: `http://localhost:5173/course-detail/${courseId}`,
-      metadata: {
-        courseId: courseId,
-        userId: userId,
+        unit_amount: course.coursePrice * 100, // Amount in paise
       },
-      shipping_address_collection: {
-        allowed_countries: ["IN"], // Optionally restrict allowed countries
-      },
-    });
+      quantity: 1,
+    },
+  ],
+  mode: "payment",
+  success_url: `https://courseverse-app.onrender.com/course-progress/${courseId}`, // deployed frontend URL
+  cancel_url: `https://courseverse-app.onrender.com/course-detail/${courseId}`,   // deployed frontend URL
+  metadata: {
+    courseId: courseId,
+    userId: userId,
+  },
+  shipping_address_collection: {
+    allowed_countries: ["IN"],
+  },
+});
 
     if (!session.url) {
       return res
