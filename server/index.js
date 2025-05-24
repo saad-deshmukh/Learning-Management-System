@@ -24,8 +24,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "http://localhost:5173",                  // for local dev
-  "https://courseverse-app.onrender.com"   // ✅ your deployed frontend
+  "http://localhost:5173",                         // for local dev
+  "https://courseverse-app.onrender.com" ,        // ✅ your deployed frontend
+  "https://lively-nasturtium-9a4264.netlify.app"
 ];
 
 app.use(cors({
