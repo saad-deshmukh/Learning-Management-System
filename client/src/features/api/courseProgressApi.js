@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const COURSE_PROGRESS_API = import.meta.env.VITE_COURSE_PROGRESS_API;
 
+
 export const courseProgressApi = createApi({
   reducerPath: "courseProgressApi",
   baseQuery: fetchBaseQuery({
