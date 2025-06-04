@@ -39,8 +39,8 @@ export const createCheckoutSession = async (req, res) => {
     },
   ],
   mode: "payment",
-  success_url: `https://https://courseverse-lms.netlify.app/course-progress/${courseId}`, // deployed frontend URL
-  cancel_url: `https://https://courseverse-lms.netlify.app/course-detail/${courseId}`,   // deployed frontend URL
+  success_url: `https://courseverse-lms.netlify.app/course-progress/${courseId}`, // deployed frontend URL
+  cancel_url: `https://courseverse-lms.netlify.app/course-detail/${courseId}`,   // deployed frontend URL
   metadata: {
     courseId: courseId,
     userId: userId,
