@@ -45,11 +45,11 @@ const AddCourse = () => {
     <div className="flex-1 mx-10">
       <div className="mb-4">
         <h1 className="font-bold text-xl">
-         Create a course by providing essential information about your new course.
+          Lets add course, add some basic course details for your new course
         </h1>
         <p className="text-sm">
-          Create a course by providing essential information such as the course title, category, description, and any other
-          relevant details that will help define and organize your new course effectively.
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus,
+          laborum!
         </p>
       </div>
       <div className="space-y-4">

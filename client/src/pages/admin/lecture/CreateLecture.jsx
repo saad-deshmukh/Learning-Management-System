@@ -47,10 +47,11 @@ const CreateLecture = () => {
     <div className="flex-1 mx-10">
       <div className="mb-4">
         <h1 className="font-bold text-xl">
-         Add a new lecture by filling in the essential details
+          Let's add lectures, add some basic details for your new lecture
         </h1>
         <p className="text-sm">
-           Provide the lecture title, upload a video if available, and choose whether it should be free to preview.
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus,
+          laborum!
         </p>
       </div>
       <div className="space-y-4">

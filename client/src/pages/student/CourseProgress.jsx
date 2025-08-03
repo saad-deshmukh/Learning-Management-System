@@ -1,16 +1,17 @@
-import { Badge } from "@/components/ui/badge";
+
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   useCompleteCourseMutation,
   useGetCourseProgressQuery,
   useInCompleteCourseMutation,
   useUpdateLectureProgressMutation,
 } from "@/features/api/courseProgressApi";
-import { CheckCircle, CheckCircle2, CirclePlay } from "lucide-react";
+import { BookUp, Check, Circle, Library } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CourseProgress = () => {
   const params = useParams();
@@ -19,18 +20,14 @@ const CourseProgress = () => {
     useGetCourseProgressQuery(courseId);
 
   const [updateLectureProgress] = useUpdateLectureProgressMutation();
-  const [
-    completeCourse,
-    { data: markCompleteData, isSuccess: completedSuccess },
-  ] = useCompleteCourseMutation();
-  const [
-    inCompleteCourse,
-    { data: markInCompleteData, isSuccess: inCompletedSuccess },
-  ] = useInCompleteCourseMutation();
+  const [completeCourse, { data: markCompleteData, isSuccess: completedSuccess }] =
+    useCompleteCourseMutation();
+  const [inCompleteCourse, { data: markInCompleteData, isSuccess: inCompletedSuccess }] =
+    useInCompleteCourseMutation();
+
+  const [currentLecture, setCurrentLecture] = useState(null);
 
   useEffect(() => {
-    console.log(markCompleteData);
-
     if (completedSuccess) {
       refetch();
       toast.success(markCompleteData.message);
@@ -39,133 +36,152 @@ const CourseProgress = () => {
       refetch();
       toast.success(markInCompleteData.message);
     }
-  }, [completedSuccess, inCompletedSuccess]);
+  }, [completedSuccess, inCompletedSuccess, markCompleteData, markInCompleteData, refetch]);
 
-  const [currentLecture, setCurrentLecture] = useState(null);
-
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Failed to load course details</p>;
-
-  console.log(data);
+  if (isLoading) return <CourseProgressSkeleton />;
+  if (isError) return <ErrorState />;
 
   const { courseDetails, progress, completed } = data.data;
-  const { courseTitle } = courseDetails;
+  const { courseTitle, lectures } = courseDetails;
 
-  // initialze the first lecture is not exist
-  const initialLecture =
-    currentLecture || (courseDetails.lectures && courseDetails.lectures[0]);
+  const initialLecture = currentLecture || (lectures && lectures[0]);
 
   const isLectureCompleted = (lectureId) => {
     return progress.some((prog) => prog.lectureId === lectureId && prog.viewed);
   };
 
   const handleLectureProgress = async (lectureId) => {
+    if (!lectureId) return;
     await updateLectureProgress({ courseId, lectureId });
     refetch();
   };
-  // Handle select a specific lecture to watch
+
   const handleSelectLecture = (lecture) => {
     setCurrentLecture(lecture);
     handleLectureProgress(lecture._id);
   };
 
-
-  const handleCompleteCourse = async () => {
-    await completeCourse(courseId);
-  };
-  const handleInCompleteCourse = async () => {
-    await inCompleteCourse(courseId);
-  };
+  const handleCompleteCourse = () => completeCourse(courseId);
+  const handleInCompleteCourse = () => inCompleteCourse(courseId);
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
-      {/* Display course name  */}
-      <div className="flex justify-between mb-4">
-        <h1 className="text-2xl font-bold">{courseTitle}</h1>
-        <Button
-          onClick={completed ? handleInCompleteCourse : handleCompleteCourse}
-          variant={completed ? "outline" : "default"}
-        >
-          {completed ? (
-            <div className="flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2" /> <span>Completed</span>{" "}
-            </div>
-          ) : (
-            "Mark as completed"
-          )}
-        </Button>
-      </div>
+    <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
+      {/* --- Left Panel: Syllabus / Lecture List --- */}
+      <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
+        <div className="p-5 border-b border-stone-200 dark:border-stone-800">
+          <h2 className="font-serif text-xl font-bold text-stone-800 dark:text-stone-200 truncate">
+            {courseTitle}
+          </h2>
+          <p className="text-sm text-stone-500 dark:text-stone-400">Course Syllabus</p>
+        </div>
+        <nav className="flex-1 overflow-y-auto">
+          {lectures.map((lecture, index) => (
+            <button
+              key={lecture._id}
+              onClick={() => handleSelectLecture(lecture)}
+              className={`w-full text-left flex items-start gap-4 p-4 text-sm transition-colors ${
+                lecture._id === initialLecture?._id
+                  ? "bg-stone-200/60 dark:bg-stone-800/60"
+                  : "hover:bg-stone-100 dark:hover:bg-stone-800/40"
+              }`}
+            >
+              <div className="mt-1">
+                {isLectureCompleted(lecture._id) ? (
+                  <Check size={16} className="text-amber-700 dark:text-amber-600 shrink-0" />
+                ) : (
+                  <Circle size={16} className="text-stone-400 dark:text-stone-500 shrink-0" />
+                )}
+              </div>
+              <div>
+                <p className="font-medium text-stone-800 dark:text-stone-200">Chapter {index + 1}</p>
+                <p className="text-stone-600 dark:text-stone-400">{lecture.lectureTitle}</p>
+              </div>
+            </button>
+          ))}
+        </nav>
+      </aside>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Video section  */}
-        <div className="flex-1 md:w-3/5 h-fit rounded-lg shadow-lg p-4">
-          <div>
+      {/* --- Right Panel: Video Player & Controls --- */}
+      <main className="flex-1 flex flex-col">
+        <div className="flex-1 p-4 md:p-8 flex items-center justify-center">
+          <div className="w-full max-w-5xl aspect-video bg-black rounded-sm border border-stone-200 dark:border-stone-800">
             <video
-              src={currentLecture?.videoUrl || initialLecture.videoUrl}
+              key={initialLecture?._id} // Force re-render on lecture change
+              src={initialLecture?.videoUrl}
               controls
-              className="w-full h-auto md:rounded-lg"
-              onPlay={() =>
-                handleLectureProgress(currentLecture?._id || initialLecture._id)
-              }
+              autoPlay
+              className="w-full h-full"
+              onPlay={() => handleLectureProgress(initialLecture?._id)}
             />
           </div>
-          {/* Display current watching lecture title */}
-          <div className="mt-2 ">
-            <h3 className="font-medium text-lg">
-              {`Lecture ${
-                courseDetails.lectures.findIndex(
-                  (lec) =>
-                    lec._id === (currentLecture?._id || initialLecture._id)
-                ) + 1
-              } : ${
-                currentLecture?.lectureTitle || initialLecture.lectureTitle
-              }`}
-            </h3>
-          </div>
         </div>
-        {/* Lecture Sidebar  */}
-        <div className="flex flex-col w-full md:w-2/5 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
-          <h2 className="font-semibold text-xl mb-4">Course Lecture</h2>
-          <div className="flex-1 overflow-y-auto">
-            {courseDetails?.lectures.map((lecture) => (
-              <Card
-                key={lecture._id}
-                className={`mb-3 hover:cursor-pointer transition transform ${
-                  lecture._id === currentLecture?._id
-                    ? "bg-gray-200 dark:dark:bg-gray-800"
-                    : ""
-                } `}
-                onClick={() => handleSelectLecture(lecture)}
-              >
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center">
-                    {isLectureCompleted(lecture._id) ? (
-                      <CheckCircle2 size={24} className="text-green-500 mr-2" />
-                    ) : (
-                      <CirclePlay size={24} className="text-gray-500 mr-2" />
-                    )}
-                    <div>
-                      <CardTitle className="text-lg font-medium">
-                        {lecture.lectureTitle}
-                      </CardTitle>
-                    </div>
-                  </div>
-                  {isLectureCompleted(lecture._id) && (
-                    <Badge
-                      variant={"outline"}
-                      className="bg-green-200 text-green-600"
-                    >
-                      Completed
-                    </Badge>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+        <footer className="flex items-center justify-between p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
+          <div>
+             <h3 className="font-serif font-semibold text-lg text-stone-800 dark:text-stone-200">
+                {initialLecture?.lectureTitle}
+             </h3>
+             <p className="text-sm text-stone-500 dark:text-stone-400">
+                Chapter {lectures.findIndex(lec => lec._id === initialLecture?._id) + 1} of {lectures.length}
+             </p>
           </div>
-        </div>
-      </div>
+          <Button
+            onClick={completed ? handleInCompleteCourse : handleCompleteCourse}
+            variant={completed ? "outline" : "default"}
+            className="rounded-sm"
+          >
+            <BookUp className="mr-2 h-4 w-4" />
+            {completed ? "Mark as In-Progress" : "Mark Course as Completed"}
+          </Button>
+        </footer>
+      </main>
     </div>
   );
 };
+
+// --- Themed Skeleton Component ---
+const CourseProgressSkeleton = () => (
+    <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
+      <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
+        <div className="p-5 border-b border-stone-200 dark:border-stone-800 space-y-2">
+            <Skeleton className="h-6 w-3/4 bg-stone-200 dark:bg-stone-800"/>
+            <Skeleton className="h-4 w-1/2 bg-stone-200 dark:bg-stone-800"/>
+        </div>
+        <div className="p-4 space-y-4">
+            {Array.from({length: 6}).map((_, i) => (
+                <div key={i} className="flex items-start gap-4">
+                    <Skeleton className="h-5 w-5 mt-1 bg-stone-200 dark:bg-stone-800"/>
+                    <div className="space-y-2 flex-1">
+                        <Skeleton className="h-5 w-1/3 bg-stone-200 dark:bg-stone-800"/>
+                        <Skeleton className="h-4 w-full bg-stone-200 dark:bg-stone-800"/>
+                    </div>
+                </div>
+            ))}
+        </div>
+      </aside>
+      <main className="flex-1 flex flex-col">
+        <div className="flex-1 p-4 md:p-8 flex items-center justify-center">
+            <Skeleton className="w-full max-w-5xl aspect-video bg-stone-200 dark:bg-stone-800 rounded-sm"/>
+        </div>
+        <footer className="flex items-center justify-between p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
+            <div className="space-y-2">
+                <Skeleton className="h-6 w-48 bg-stone-200 dark:bg-stone-800"/>
+                <Skeleton className="h-4 w-32 bg-stone-200 dark:bg-stone-800"/>
+            </div>
+            <Skeleton className="h-10 w-48 bg-stone-200 dark:bg-stone-800 rounded-sm"/>
+        </footer>
+      </main>
+    </div>
+);
+
+// --- Themed Error State Component ---
+const ErrorState = () => (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 dark:bg-stone-950 text-center px-4">
+       <Library className="mx-auto h-12 w-12 text-stone-400 dark:text-stone-500 mb-4" />
+      <h2 className="font-serif text-2xl font-semibold text-stone-700 dark:text-stone-300">Could Not Load Course</h2>
+      <p className="mt-2 text-stone-600 dark:text-stone-400">
+        We were unable to load the progress for this course. Please try again later.
+      </p>
+    </div>
+  );
 
 export default CourseProgress;

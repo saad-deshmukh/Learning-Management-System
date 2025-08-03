@@ -3,12 +3,17 @@ export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
-  	extend: {
+  	extend:
+	 {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+		animation: {
+        'spin-reverse': 'spin 1s linear infinite reverse',
+        // ... ensure your other animations like 'aurora-morph' are here if you still need them elsewhere
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

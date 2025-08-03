@@ -1,3 +1,4 @@
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -9,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import React, { useState } from "react";
 
 const categories = [
@@ -31,29 +31,28 @@ const Filter = ({ handleFilterChange }) => {
   const [sortByPrice, setSortByPrice] = useState("");
 
   const handleCategoryChange = (categoryId) => {
-    setSelectedCategories((prevCategories) => {
-      const newCategories = prevCategories.includes(categoryId)
-        ? prevCategories.filter((id) => id !== categoryId)
-        : [...prevCategories, categoryId];
+    const newCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter((id) => id !== categoryId)
+      : [...selectedCategories, categoryId];
 
-        handleFilterChange(newCategories, sortByPrice);
-        return newCategories;
-    });
+    setSelectedCategories(newCategories);
+    handleFilterChange(newCategories, sortByPrice);
   };
 
   const selectByPriceHandler = (selectedValue) => {
     setSortByPrice(selectedValue);
     handleFilterChange(selectedCategories, selectedValue);
-  }
+  };
+  
   return (
-    <div className="w-full md:w-[20%]">
-      <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-lg md:text-xl">Filter Options</h1>
+    <aside className="w-full md:w-64">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-serif font-bold text-xl text-stone-800 dark:text-stone-200">Filters</h2>
         <Select onValueChange={selectByPriceHandler}>
-          <SelectTrigger>
+          <SelectTrigger className="w-[150px] rounded-sm focus:ring-amber-700">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-sm">
             <SelectGroup>
               <SelectLabel>Sort by price</SelectLabel>
               <SelectItem value="low">Low to High</SelectItem>
@@ -62,22 +61,32 @@ const Filter = ({ handleFilterChange }) => {
           </SelectContent>
         </Select>
       </div>
-      <Separator className="my-4" />
+      
+      <div className="border-b border-stone-200 dark:border-stone-800 mb-4"></div>
+
       <div>
-        <h1 className="font-semibold mb-2">CATEGORY</h1>
-        {categories.map((category) => (
-          <div className="flex items-center space-x-2 my-2">
-            <Checkbox
-              id={category.id}
-              onCheckedChange={() => handleCategoryChange(category.id)}
-            />
-            <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {category.label}
-            </Label>
-          </div>
-        ))}
+        <h3 className="font-serif font-semibold text-lg text-stone-700 dark:text-stone-300 mb-3">
+          Category
+        </h3>
+        <div className="space-y-3">
+          {categories.map((category) => (
+            <div key={category.id} className="flex items-center space-x-3">
+              <Checkbox
+                id={category.id}
+                onCheckedChange={() => handleCategoryChange(category.id)}
+                className="rounded-[2px]"
+              />
+              <Label
+                htmlFor={category.id}
+                className="font-sans text-sm text-stone-700 dark:text-stone-300 font-medium cursor-pointer"
+              >
+                {category.label}
+              </Label>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
