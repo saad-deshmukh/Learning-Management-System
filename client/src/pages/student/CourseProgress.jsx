@@ -5,12 +5,12 @@ import {
   useInCompleteCourseMutation,
   useUpdateLectureProgressMutation,
 } from "@/features/api/courseProgressApi";
-import { BookUp, Check, Circle, Library, List } from "lucide-react"; // Imported List icon
+import { BookUp, Check, Circle, Library, List } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { // Import Sheet components
+import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -71,13 +71,13 @@ const CourseProgress = () => {
   const handleCompleteCourse = () => completeCourse(courseId);
   const handleInCompleteCourse = () => inCompleteCourse(courseId);
 
-  // Reusable component for the lecture list to avoid repetition
-  const LectureList = () => (
+  // FIX 1: The LectureList component now accepts an `isMobile` prop.
+  const LectureList = ({ isMobile = false }) => (
     <nav className="flex-1 overflow-y-auto">
-      {lectures.map((lecture, index) => (
-        // SheetClose will automatically close the panel when a lecture is clicked on mobile
-        <SheetClose asChild key={lecture._id}>
+      {lectures.map((lecture, index) => {
+        const lectureButton = (
           <button
+            key={lecture._id}
             onClick={() => handleSelectLecture(lecture)}
             className={`w-full text-left flex items-start gap-4 p-4 text-sm transition-colors ${
               lecture._id === initialLecture?._id
@@ -97,14 +97,20 @@ const CourseProgress = () => {
               <p className="text-stone-600 dark:text-stone-400">{lecture.lectureTitle}</p>
             </div>
           </button>
-        </SheetClose>
-      ))}
+        );
+
+        // FIX 2: Conditionally wrap the button in <SheetClose> only for mobile.
+        if (isMobile) {
+          return <SheetClose asChild key={lecture._id}>{lectureButton}</SheetClose>;
+        }
+
+        return lectureButton; // For desktop, return the button directly.
+      })}
     </nav>
   );
 
   return (
     <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
-      {/* --- Left Panel: Syllabus / Lecture List (Desktop) --- */}
       <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
         <div className="p-5 border-b border-stone-200 dark:border-stone-800">
           <h2 className="font-serif text-xl font-bold text-stone-800 dark:text-stone-200 truncate">
@@ -112,26 +118,25 @@ const CourseProgress = () => {
           </h2>
           <p className="text-sm text-stone-500 dark:text-stone-400">Course Syllabus</p>
         </div>
+        {/* FIX 3: Calling LectureList for desktop without the isMobile prop. */}
         <LectureList />
       </aside>
 
-      {/* --- Right Panel: Video Player & Controls --- */}
       <main className="flex-1 flex flex-col">
         <div className="flex-1 p-4 md:p-8 flex items-center justify-center">
-          <div className="w-full max-w-5xl aspect-video bg-black rounded-sm border border-stone-200 dark:border-stone-800">
-            <video
-              key={initialLecture?._id}
-              src={initialLecture?.videoUrl}
-              controls
-              autoPlay
-              className="w-full h-full"
-              onPlay={() => handleLectureProgress(initialLecture?._id)}
-            />
-          </div>
+            {/* ... video player section remains the same ... */}
+            <div className="w-full max-w-5xl aspect-video bg-black rounded-sm border border-stone-200 dark:border-stone-800">
+                <video
+                key={initialLecture?._id}
+                src={initialLecture?.videoUrl}
+                controls
+                autoPlay
+                className="w-full h-full"
+                onPlay={() => handleLectureProgress(initialLecture?._id)}
+                />
+            </div>
         </div>
         <footer className="flex items-center justify-between gap-4 p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
-          
-          {/* --- Mobile Syllabus Drawer --- */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" className="rounded-sm lg:hidden">
@@ -145,10 +150,11 @@ const CourseProgress = () => {
                   {courseTitle}
                 </SheetTitle>
               </SheetHeader>
-              <LectureList />
+              {/* FIX 4: Calling LectureList for mobile with isMobile={true}. */}
+              <LectureList isMobile={true} />
             </SheetContent>
           </Sheet>
-
+          {/* ... rest of the footer remains the same ... */}
           <div className="text-right flex-1">
             <h3 className="font-serif font-semibold text-lg text-stone-800 dark:text-stone-200 truncate">
               {initialLecture?.lectureTitle}
@@ -160,7 +166,7 @@ const CourseProgress = () => {
           <Button
             onClick={completed ? handleInCompleteCourse : handleCompleteCourse}
             variant={completed ? "outline" : "default"}
-            className="rounded-sm hidden sm:flex" // Hide on very small screens to save space
+            className="rounded-sm hidden sm:flex"
           >
             <BookUp className="mr-2 h-4 w-4" />
             {completed ? "Mark as In-Progress" : "Mark Course as Completed"}
@@ -171,7 +177,9 @@ const CourseProgress = () => {
   );
 };
 
+
 // --- Skeletons and Error States remain the same ---
+// ...
 const CourseProgressSkeleton = () => (
     <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
       <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
