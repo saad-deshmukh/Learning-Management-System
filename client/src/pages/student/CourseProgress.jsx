@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button";
 import {
   useCompleteCourseMutation,
@@ -7,13 +5,22 @@ import {
   useInCompleteCourseMutation,
   useUpdateLectureProgressMutation,
 } from "@/features/api/courseProgressApi";
-import { BookUp, Check, Circle, Library } from "lucide-react";
+import { BookUp, Check, Circle, Library, List } from "lucide-react"; // Imported List icon
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { // Import Sheet components
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const CourseProgress = () => {
+  // ... (all your existing hooks and state remain the same)
   const params = useParams();
   const courseId = params.courseId;
   const { data, isLoading, isError, refetch } =
@@ -64,9 +71,40 @@ const CourseProgress = () => {
   const handleCompleteCourse = () => completeCourse(courseId);
   const handleInCompleteCourse = () => inCompleteCourse(courseId);
 
+  // Reusable component for the lecture list to avoid repetition
+  const LectureList = () => (
+    <nav className="flex-1 overflow-y-auto">
+      {lectures.map((lecture, index) => (
+        // SheetClose will automatically close the panel when a lecture is clicked on mobile
+        <SheetClose asChild key={lecture._id}>
+          <button
+            onClick={() => handleSelectLecture(lecture)}
+            className={`w-full text-left flex items-start gap-4 p-4 text-sm transition-colors ${
+              lecture._id === initialLecture?._id
+                ? "bg-stone-200/60 dark:bg-stone-800/60"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800/40"
+            }`}
+          >
+            <div className="mt-1">
+              {isLectureCompleted(lecture._id) ? (
+                <Check size={16} className="text-amber-700 dark:text-amber-600 shrink-0" />
+              ) : (
+                <Circle size={16} className="text-stone-400 dark:text-stone-500 shrink-0" />
+              )}
+            </div>
+            <div>
+              <p className="font-medium text-stone-800 dark:text-stone-200">Chapter {index + 1}</p>
+              <p className="text-stone-600 dark:text-stone-400">{lecture.lectureTitle}</p>
+            </div>
+          </button>
+        </SheetClose>
+      ))}
+    </nav>
+  );
+
   return (
     <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
-      {/* --- Left Panel: Syllabus / Lecture List --- */}
+      {/* --- Left Panel: Syllabus / Lecture List (Desktop) --- */}
       <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
         <div className="p-5 border-b border-stone-200 dark:border-stone-800">
           <h2 className="font-serif text-xl font-bold text-stone-800 dark:text-stone-200 truncate">
@@ -74,31 +112,7 @@ const CourseProgress = () => {
           </h2>
           <p className="text-sm text-stone-500 dark:text-stone-400">Course Syllabus</p>
         </div>
-        <nav className="flex-1 overflow-y-auto">
-          {lectures.map((lecture, index) => (
-            <button
-              key={lecture._id}
-              onClick={() => handleSelectLecture(lecture)}
-              className={`w-full text-left flex items-start gap-4 p-4 text-sm transition-colors ${
-                lecture._id === initialLecture?._id
-                  ? "bg-stone-200/60 dark:bg-stone-800/60"
-                  : "hover:bg-stone-100 dark:hover:bg-stone-800/40"
-              }`}
-            >
-              <div className="mt-1">
-                {isLectureCompleted(lecture._id) ? (
-                  <Check size={16} className="text-amber-700 dark:text-amber-600 shrink-0" />
-                ) : (
-                  <Circle size={16} className="text-stone-400 dark:text-stone-500 shrink-0" />
-                )}
-              </div>
-              <div>
-                <p className="font-medium text-stone-800 dark:text-stone-200">Chapter {index + 1}</p>
-                <p className="text-stone-600 dark:text-stone-400">{lecture.lectureTitle}</p>
-              </div>
-            </button>
-          ))}
-        </nav>
+        <LectureList />
       </aside>
 
       {/* --- Right Panel: Video Player & Controls --- */}
@@ -106,7 +120,7 @@ const CourseProgress = () => {
         <div className="flex-1 p-4 md:p-8 flex items-center justify-center">
           <div className="w-full max-w-5xl aspect-video bg-black rounded-sm border border-stone-200 dark:border-stone-800">
             <video
-              key={initialLecture?._id} // Force re-render on lecture change
+              key={initialLecture?._id}
               src={initialLecture?.videoUrl}
               controls
               autoPlay
@@ -115,19 +129,38 @@ const CourseProgress = () => {
             />
           </div>
         </div>
-        <footer className="flex items-center justify-between p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
-          <div>
-             <h3 className="font-serif font-semibold text-lg text-stone-800 dark:text-stone-200">
-                {initialLecture?.lectureTitle}
-             </h3>
-             <p className="text-sm text-stone-500 dark:text-stone-400">
-                Chapter {lectures.findIndex(lec => lec._id === initialLecture?._id) + 1} of {lectures.length}
-             </p>
+        <footer className="flex items-center justify-between gap-4 p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
+          
+          {/* --- Mobile Syllabus Drawer --- */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="rounded-sm lg:hidden">
+                <List className="mr-2 h-4 w-4" />
+                Syllabus
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col bg-stone-50 dark:bg-stone-900 p-0">
+              <SheetHeader className="p-5 border-b border-stone-200 dark:border-stone-800">
+                <SheetTitle className="font-serif text-xl font-bold text-stone-800 dark:text-stone-200 truncate">
+                  {courseTitle}
+                </SheetTitle>
+              </SheetHeader>
+              <LectureList />
+            </SheetContent>
+          </Sheet>
+
+          <div className="text-right flex-1">
+            <h3 className="font-serif font-semibold text-lg text-stone-800 dark:text-stone-200 truncate">
+              {initialLecture?.lectureTitle}
+            </h3>
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Chapter {lectures.findIndex(lec => lec._id === initialLecture?._id) + 1} of {lectures.length}
+            </p>
           </div>
           <Button
             onClick={completed ? handleInCompleteCourse : handleCompleteCourse}
             variant={completed ? "outline" : "default"}
-            className="rounded-sm"
+            className="rounded-sm hidden sm:flex" // Hide on very small screens to save space
           >
             <BookUp className="mr-2 h-4 w-4" />
             {completed ? "Mark as In-Progress" : "Mark Course as Completed"}
@@ -138,7 +171,7 @@ const CourseProgress = () => {
   );
 };
 
-// --- Themed Skeleton Component ---
+// --- Skeletons and Error States remain the same ---
 const CourseProgressSkeleton = () => (
     <div className="flex h-screen bg-stone-100 dark:bg-stone-950">
       <aside className="w-80 h-full flex-col border-r border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 hidden lg:flex">
@@ -173,7 +206,6 @@ const CourseProgressSkeleton = () => (
     </div>
 );
 
-// --- Themed Error State Component ---
 const ErrorState = () => (
     <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 dark:bg-stone-950 text-center px-4">
        <Library className="mx-auto h-12 w-12 text-stone-400 dark:text-stone-500 mb-4" />
