@@ -74,7 +74,7 @@ const Dashboard = () => {
                   borderColor: "hsl(var(--border))",
                   borderRadius: '2px'
                 }}
-                formatter={(value) => [`$${value}`, "Price"]}
+                formatter={(value) => [`₹${value}`, "Price"]}
               />
               <Line
                 type="monotone"
