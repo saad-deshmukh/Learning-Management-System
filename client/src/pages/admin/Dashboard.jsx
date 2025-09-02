@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetPurchasedCoursesQuery } from "@/features/api/purchaseApi";
-import { DollarSign, Library, TrendingUp } from "lucide-react";
+import { IndianRupee, Library, TrendingUp } from "lucide-react";
 import React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -37,8 +37,8 @@ const Dashboard = () => {
         {/* --- Stat Cards --- */}
         <StatCard
           title="Total Revenue"
-          value={`$${totalRevenue.toFixed(2)}`}
-          icon={<DollarSign className="h-6 w-6 text-stone-500 dark:text-stone-400" />}
+          value={`₹${totalRevenue.toFixed(2)}`}
+          icon={<IndianRupee className="h-6 w-6 text-stone-500 dark:text-stone-400" />}
         />
         <StatCard
           title="Total Sales"
