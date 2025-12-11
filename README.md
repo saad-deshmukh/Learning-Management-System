@@ -57,21 +57,25 @@ A comprehensive, full-stack Learning Management System (LMS) developed using the
 
 ## 🖼️ Screenshots
 
-_Add screenshots here after capturing them._
 - Landing Page
+  
 <img width="1920" height="951" alt="landing Page" src="https://github.com/user-attachments/assets/35618857-bcc2-41d0-b8e8-c771db422213" />
 
 - Signup/Login
+  
 - <img width="1920" height="951" alt="landing Page" src="https://github.com/user-attachments/assets/7e9898e9-58fe-4fd0-9f90-77b1c5e90b13" />
 
 Course Catalogue
-- <img width="1894" height="966" alt="course Catalogue" src="https://github.com/user-attachments/assets/f4b011bc-8f02-4279-8ce5-6e24ecf93cb4" />
+
+- <img width="1920" height="951" alt="course Catalogue" src="https://github.com/user-attachments/assets/f4b011bc-8f02-4279-8ce5-6e24ecf93cb4" />
 
 MyLearning
--<img width="1880" height="954" alt="MyLearning" src="https://github.com/user-attachments/assets/0b72e414-5c70-41b6-9fe5-966e4b457927" />
+
+-<img width="1920" height="951" alt="MyLearning" src="https://github.com/user-attachments/assets/0b72e414-5c70-41b6-9fe5-966e4b457927" />
 
 - Instructor Dashboard
-- <img width="1905" height="978" alt="Admin Dashboard" src="https://github.com/user-attachments/assets/40b62008-7fbc-447f-b767-33482deec099" />
+  
+- <img width="1920" height="951" alt="Admin Dashboard" src="https://github.com/user-attachments/assets/40b62008-7fbc-447f-b767-33482deec099" />
 
 ---
 
