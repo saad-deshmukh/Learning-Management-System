@@ -42,9 +42,9 @@ const Course = ({ course }) => {
                   {course.creator?.name?.charAt(0) || ""}
                 </AvatarFallback>
               </Avatar>
-              <p className="font-sans text-sm text-stone-600 dark:text-stone-400">
+              {/* <p className="font-sans text-sm text-stone-600 dark:text-stone-400">
                 {course.creator?.name}
-              </p>
+              </p> */}
             </div>
           </div>
 
