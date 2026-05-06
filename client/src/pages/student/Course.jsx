@@ -39,7 +39,7 @@ const Course = ({ course }) => {
               <Avatar className="h-6 w-6 rounded-sm">
                 <AvatarImage src={course.creator?.photoUrl} />
                 <AvatarFallback className="rounded-sm bg-stone-200 dark:bg-stone-700">
-                  {course.creator?.name?.charAt(0) || "C"}
+                  {course.creator?.name?.charAt(0) || ""}
                 </AvatarFallback>
               </Avatar>
               <p className="font-sans text-sm text-stone-600 dark:text-stone-400">
